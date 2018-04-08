@@ -17,6 +17,8 @@ def ldaLearn(X,y):
     # means - A k x d matrix containing learnt means for each of the k classes
     # covmat - A single d x d learnt covariance matrix 
     
+    
+    
     # IMPLEMENT THIS METHOD 
     return means,covmat
 
@@ -62,7 +64,10 @@ def learnOLERegression(X,y):
     # y = N x 1                                                               
     # Output: 
     # w = d x 1 
-	
+	b = np.dot(X.T,X)
+    c = np.dot(X.T,y)
+    a = np.linalg.inv(b)
+    w = np.dot(a, c)  
     # IMPLEMENT THIS METHOD                                                   
     return w
 
@@ -84,6 +89,16 @@ def testOLERegression(w,Xtest,ytest):
     # ytest = X x 1
     # Output:
     # mse
+    
+    x_w = np.dot(Xtest, w)
+    
+    a_min = (ytest - x_w)   
+    a_min = np.dot(a_min.T,a_min)
+    
+    a_sum = a_min.sum(axis=0)
+    a_sum = np.sqrt(a_sum)
+    
+    mse = a_sum/(Xtest.shape[0]);
     
     # IMPLEMENT THIS METHOD
     return mse
