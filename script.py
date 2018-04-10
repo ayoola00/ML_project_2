@@ -17,7 +17,7 @@ def ldaLearn(X,y):
     # means - A k x d matrix containing learnt means for each of the k classes
     # covmat - A single d x d learnt covariance matrix 
     
-    # IMPLEMENT THIS METHOD 
+    # IMPLEMENT THIS METHOD   
     return means,covmat
 
 def qdaLearn(X,y):
@@ -105,6 +105,13 @@ def mapNonLinear(x,p):
     # Xp - (N x (p+1)) 
 	
     # IMPLEMENT THIS METHOD
+    cv = x.shape[0]
+    Xp = np.ones((cv, p+1))
+    for i in range(cv):
+        for j in range(p+1):
+            if j!= 0:
+                Xp[i][j] = x[i]**j
+            
     return Xp
 
 # Main script
