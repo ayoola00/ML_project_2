@@ -100,15 +100,15 @@ def regressionObjVal(w, X, y, lambd):
     # lambda                                                                  
 
     # IMPLEMENT THIS METHOD
-    w.resize(w.shape[0],1)
+    tempw = np.reshape(w,(w.shape[0],1))
     xi = np.dot(X.transpose(),X)
     yi = np.dot(y.transpose(),X)
-    grad = (((np.dot(w.transpose(),xi))-yi)/X.shape[0]) + (lambd * w.transpose())
+    grad = (((np.dot(tempw.transpose(),xi))-yi)/X.shape[0]) + (lambd * tempw.transpose())
 
-    yx = y - (X.dot(w))
+    yx = y - (X.dot(tempw))
 
     temp = (np.dot(yx.transpose(),yx))/(2*X.shape[0])
-    error = temp + ((lambd/2) * np.dot(w.transpose(),w))
+    error = temp + ((lambd/2) * np.dot(tempw.transpose(),tempw))
     error = error.flatten()
 
     error_grad = grad
