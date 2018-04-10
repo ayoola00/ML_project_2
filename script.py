@@ -100,8 +100,19 @@ def regressionObjVal(w, X, y, lambd):
     # lambda                                                                  
 
     # IMPLEMENT THIS METHOD
+    w.resize(w.shape[0],1)
+    xi = np.dot(X.transpose(),X)
+    yi = np.dot(y.transpose(),X)
+    grad = (((np.dot(w.transpose(),xi))-yi)/X.shape[0]) + (lambd * w.transpose())
 
-    
+    yx = y - (X.dot(w))
+
+    temp = (np.dot(yx.transpose(),yx))/(2*X.shape[0])
+    error = temp + ((lambd/2) * np.dot(w.transpose(),w))
+    error = error.flatten()
+
+    error_grad = grad
+
     return error, error_grad
 
 def mapNonLinear(x,p):
