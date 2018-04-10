@@ -77,7 +77,7 @@ def learnRidgeRegression(X,y,lambd):
     # IMPLEMENT THIS METHOD
     xx = np.dot(X.transpose(),X)
     xy = np.dot(X.transpose(),y)
-    sigma = np.identity(xx.shape[0]) * X.shape[0] * lambd
+    sigma = np.eye(xx.shape[0]) * X.shape[0] * lambd
     temp = np.linalg.inv((sigma + xx))
     w = temp.dot(xy)
     return w
