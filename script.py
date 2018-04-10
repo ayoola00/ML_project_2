@@ -16,7 +16,36 @@ def ldaLearn(X,y):
     # Outputs
     # means - A k x d matrix containing learnt means for each of the k classes
     # covmat - A single d x d learnt covariance matrix 
+    temp_mean = []
+    class_num = np.unique(y) #returns how many classes
     
+    for item in class_num:
+        x_tem = X[np.where(y.flatten()) == item, :]
+        m =np.mean(x_tem, axis= 0)
+        temp_mean.append(m)
+    
+   
+    means= np.transpose(np.asarray(temp_mean))
+    
+    big_mean = np.mean(X, axis=0)
+    
+    
+    fixed_mean = []
+   
+    for item in class_num:
+        x_tem = X[np.where(y.flatten()) == item, :]
+        fixed_mean.append(x_tem - big_mean)  
+        
+    covmats = []
+    for item in class_num:
+        y = (int(group)-1)
+        covmats.append((np.dot(np.transpose(fixed_mean[y]),fixed_mean[y])/(fixed_mean[y].size/2))                                                                                        
+   
+  covmat= np.zero((covmats[0].shape))
+    for item in class_num:
+        y = (int(group)-1)               
+        mult=(fixed_mean[y].size/2.0)/(X.size/2.0)
+        covmat=covmat+((covmats[y]*mult)               
     # IMPLEMENT THIS METHOD 
     return means,covmat
 
@@ -29,6 +58,32 @@ def qdaLearn(X,y):
     # means - A k x d matrix containing learnt means for each of the k classes
     # covmats - A list of k d x d learnt covariance matrices for each of the k classes
     
+    temp_mean = []
+    class_num = np.unique(y) #returns how many classes
+    
+    for item in class_num:
+        x_tem = X[np.where(y.flatten()) == item, :]
+        m =np.mean(x_tem, axis= 0)
+        temp_mean.append(m)
+    
+   
+    means= np.transpose(np.asarray(temp_mean))
+    
+    big_mean = np.mean(X, axis=0)
+    
+    
+    fixed_mean = []
+   
+    for item in class_num:
+        x_tem = X[np.where(y.flatten()) == item, :]
+        fixed_mean.append(x_tem - big_mean)  
+        
+    covmats = []
+    for item in class_num:
+        x_tem = X[np.where(y.flatten()) == item, :]
+        x_tem = x_tem - big_mean
+        covmats.append((np.cov(x_temp, rowvar = 0))
+    
     # IMPLEMENT THIS METHOD
     return means,covmats
 
@@ -40,7 +95,18 @@ def ldaTest(means,covmat,Xtest,ytest):
     # Outputs
     # acc - A scalar accuracy value
     # ypred - N x 1 column vector indicating the predicted labels
-
+     invcov = inv(covmat)
+     ypred = np.array([])
+     for i in Xtest:
+          det = np.array([])
+          for index, m in enumerate(means):
+              det = np.append(det, np.dot(np.dot((x-m),invcov), (x-m).t))
+          if ypred.shape[0] == 0:
+             ypred = np.array([np.argmin(det) +1])
+          else:
+               ypred = np.vstack((ypred,np.array([np.argmin(det)+1])))
+    
+     acc = np.mean((ypred==ytest).astype(float))*100
     # IMPLEMENT THIS METHOD
     return acc,ypred
 
@@ -52,7 +118,19 @@ def qdaTest(means,covmats,Xtest,ytest):
     # Outputs
     # acc - A scalar accuracy value
     # ypred - N x 1 column vector indicating the predicted labels
-
+     invcov = inv(covmat)
+     ypred = np.array([])
+     for i in Xtest:
+          det = np.array([])
+          for index, m in enumerate(means):
+              det = np.append(det, np.dot(np.dot((x-m),invcov), (x-m).t))
+          if ypred.shape[0] == 0:
+             ypred = np.array([np.argmin(det) +1])
+          else:
+               ypred = np.vstack((ypred,np.array([np.argmin(det)+1])))
+    
+     acc = np.mean((ypred==ytest).astype(float))*100
+                       
     # IMPLEMENT THIS METHOD
     return acc,ypred
 
@@ -62,7 +140,10 @@ def learnOLERegression(X,y):
     # y = N x 1                                                               
     # Output: 
     # w = d x 1 
-	
+    b = np.dot(X.T,X)
+    c = np.dot(X.T,y)
+    a = np.linalg.inv(b)
+    w = np.dot(a, c)  
     # IMPLEMENT THIS METHOD                                                   
     return w
 
@@ -89,6 +170,16 @@ def testOLERegression(w,Xtest,ytest):
     # ytest = X x 1
     # Output:
     # mse
+    
+    x_w = np.dot(Xtest, w)
+    
+    a_min = (ytest - x_w)   
+    a_min = np.dot(a_min.T,a_min)
+    
+    a_sum = a_min.sum(axis=0)
+    a_sum = np.sqrt(a_sum)
+    
+    mse = a_sum/(Xtest.shape[0]);
     
     # IMPLEMENT THIS METHOD
     return mse
@@ -270,3 +361,4 @@ plt.plot(range(pmax),mses5)
 plt.title('MSE for Test Data')
 plt.legend(('No Regularization','Regularization'))
 plt.show()
+
