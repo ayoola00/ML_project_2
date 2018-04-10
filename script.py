@@ -105,6 +105,14 @@ def mapNonLinear(x,p):
     # Xp - (N x (p+1)) 
 	
     # IMPLEMENT THIS METHOD
+    # .shape[0] will give us the column vector (cv) with correct dimensions.
+    # The vector of p attributes (Xp), is initially filled with ones.
+    cv = x.shape[0] 
+    Xp = np.ones((cv, p+1))
+    for i in range(cv):
+        for j in range(p+1):
+            if j!= 0:
+                Xp[i][j] = x[i]**j 
     return Xp
 
 # Main script
