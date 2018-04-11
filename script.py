@@ -20,7 +20,7 @@ def ldaLearn(X,y):
     class_num = np.unique(y) #returns how many classes
     
     for item in class_num:
-        x_tem = X[np.where(y.flatten()) == item, :]
+        x_tem = X[y.flatten() == item, :]
         m =np.mean(x_tem, axis= 0)
         temp_mean.append(m)
     
@@ -33,19 +33,20 @@ def ldaLearn(X,y):
     fixed_mean = []
    
     for item in class_num:
-        x_tem = X[np.where(y.flatten()) == item, :]
+        x_tem = X[y.flatten() == item, :]
         fixed_mean.append(x_tem - big_mean)  
         
     covmats = []
     for item in class_num:
-        y = (int(group)-1)
-        covmats.append((np.dot(np.transpose(fixed_mean[y]),fixed_mean[y])/(fixed_mean[y].size/2))                                                                                        
-   
-  covmat= np.zero((covmats[0].shape))
+        y = (int(item)-1)
+        covmats.append((np.dot(np.transpose(fixed_mean[y]),fixed_mean[y])/(fixed_mean[y].size/2)))                                                                                        
+    
+    covmat = np.zeros((covmats[0].shape))
+                       
     for item in class_num:
-        y = (int(group)-1)               
+        y = (int(item)-1)               
         mult=(fixed_mean[y].size/2.0)/(X.size/2.0)
-        covmat=covmat+((covmats[y]*mult)               
+        covmat=covmat+((covmats[y]*mult))               
     # IMPLEMENT THIS METHOD 
     return means,covmat
 
@@ -62,7 +63,7 @@ def qdaLearn(X,y):
     class_num = np.unique(y) #returns how many classes
     
     for item in class_num:
-        x_tem = X[np.where(y.flatten()) == item, :]
+        x_tem = X[y.flatten() == item, :]
         m =np.mean(x_tem, axis= 0)
         temp_mean.append(m)
     
@@ -75,14 +76,14 @@ def qdaLearn(X,y):
     fixed_mean = []
    
     for item in class_num:
-        x_tem = X[np.where(y.flatten()) == item, :]
+        x_tem = X[y.flatten() == item, :]
         fixed_mean.append(x_tem - big_mean)  
         
     covmats = []
     for item in class_num:
-        x_tem = X[np.where(y.flatten()) == item, :]
+        x_tem = X[y.flatten() == item, :]
         x_tem = x_tem - big_mean
-        covmats.append((np.cov(x_temp, rowvar = 0))
+        covmats.append((np.cov(x_tem, rowvar = 0)))
     
     # IMPLEMENT THIS METHOD
     return means,covmats
@@ -95,18 +96,19 @@ def ldaTest(means,covmat,Xtest,ytest):
     # Outputs
     # acc - A scalar accuracy value
     # ypred - N x 1 column vector indicating the predicted labels
-     invcov = inv(covmat)
-     ypred = np.array([])
-     for i in Xtest:
-          det = np.array([])
-          for index, m in enumerate(means):
-              det = np.append(det, np.dot(np.dot((x-m),invcov), (x-m).t))
-          if ypred.shape[0] == 0:
-             ypred = np.array([np.argmin(det) +1])
-          else:
-               ypred = np.vstack((ypred,np.array([np.argmin(det)+1])))
+    invcov = np.linalg.inv(covmat)
+    ypred = np.array([])
+    for x in Xtest:
+        det = np.array([])
+        for index, m in enumerate(means.transpose()):
+            temp = np.dot((x-m),invcov)
+            det = np.append(det, np.dot(temp, (x-m).T))
+        if ypred.shape[0] == 0:
+            ypred = np.array([np.argmin(det) +1])
+        else:
+            ypred = np.vstack((ypred,np.array([np.argmin(det)+1])))
     
-     acc = np.mean((ypred==ytest).astype(float))*100
+    acc = np.mean((ypred==ytest).astype(float))
     # IMPLEMENT THIS METHOD
     return acc,ypred
 
@@ -118,19 +120,18 @@ def qdaTest(means,covmats,Xtest,ytest):
     # Outputs
     # acc - A scalar accuracy value
     # ypred - N x 1 column vector indicating the predicted labels
-     invcov = inv(covmat)
-     ypred = np.array([])
-     for i in Xtest:
-          det = np.array([])
-          for index, m in enumerate(means):
-              det = np.append(det, np.dot(np.dot((x-m),invcov), (x-m).t))
-          if ypred.shape[0] == 0:
-             ypred = np.array([np.argmin(det) +1])
-          else:
-               ypred = np.vstack((ypred,np.array([np.argmin(det)+1])))
+    invcov = inv(covmat)
+    ypred = np.array([])
+    for x in Xtest:
+        det = np.array([])
+        for index, m in enumerate(means.transpose()):
+            det = np.append(det, np.dot(np.dot((x-m),invcov), (x-m).transpose()))
+        if ypred.shape[0] == 0:
+            ypred = np.array([np.argmin(det) +1])
+        else:
+            ypred = np.vstack((ypred,np.array([np.argmin(det)+1])))
     
-     acc = np.mean((ypred==ytest).astype(float))*100
-                       
+    acc = np.mean((ypred==ytest).astype(float))
     # IMPLEMENT THIS METHOD
     return acc,ypred
 
@@ -140,10 +141,12 @@ def learnOLERegression(X,y):
     # y = N x 1                                                               
     # Output: 
     # w = d x 1 
-    b = np.dot(X.T,X)
-    c = np.dot(X.T,y)
+    b = np.dot(X.transpose(),X)
     a = np.linalg.inv(b)
-    w = np.dot(a, c)  
+    
+    c = np.dot(a,X.transpose())
+    
+    w = np.dot(c, y)
     # IMPLEMENT THIS METHOD                                                   
     return w
 
@@ -176,11 +179,11 @@ def testOLERegression(w,Xtest,ytest):
     a_min = (ytest - x_w)   
     a_min = np.dot(a_min.T,a_min)
     
-    a_sum = a_min.sum(axis=0)
+    a_sum = (a_min.sum(axis=0))/Xtest.shape[0]
     a_sum = np.sqrt(a_sum)
     
-    mse = a_sum/(Xtest.shape[0]);
-    
+    mse = a_sum
+
     # IMPLEMENT THIS METHOD
     return mse
 
@@ -202,7 +205,7 @@ def regressionObjVal(w, X, y, lambd):
     error = temp + ((lambd/2) * np.dot(tempw.transpose(),tempw))
     error = error.flatten()
 
-    error_grad = grad
+    error_grad = np.squeeze(grad)
 
     return error, error_grad
 
@@ -241,8 +244,8 @@ print('LDA Accuracy = '+str(ldaacc))
 means,covmats = qdaLearn(X,y)
 qdaacc,qdares = qdaTest(means,covmats,Xtest,ytest)
 print('QDA Accuracy = '+str(qdaacc))
-
 # plotting boundaries
+#print("part 1 done")
 x1 = np.linspace(-5,20,100)
 x2 = np.linspace(-5,20,100)
 xx1,xx2 = np.meshgrid(x1,x2)
@@ -255,24 +258,28 @@ plt.subplot(1, 2, 1)
 
 zacc,zldares = ldaTest(means,covmat,xx,np.zeros((xx.shape[0],1)))
 plt.contourf(x1,x2,zldares.reshape((x1.shape[0],x2.shape[0])),alpha=0.3)
-plt.scatter(Xtest[:,0],Xtest[:,1],c=ytest)
+plt.scatter(Xtest[:,0],Xtest[:,1],c=ytest.flatten())
 plt.title('LDA')
 
 plt.subplot(1, 2, 2)
 
 zacc,zqdares = qdaTest(means,covmats,xx,np.zeros((xx.shape[0],1)))
 plt.contourf(x1,x2,zqdares.reshape((x1.shape[0],x2.shape[0])),alpha=0.3)
-plt.scatter(Xtest[:,0],Xtest[:,1],c=ytest)
+plt.scatter(Xtest[:,0],Xtest[:,1],c=ytest.flatten())
 plt.title('QDA')
 
 plt.show()
+#print("print 1")
 # Problem 2
+#print("part 2 done")
 if sys.version_info.major == 2:
     X,y,Xtest,ytest = pickle.load(open('diabetes.pickle','rb'))
 else:
     X,y,Xtest,ytest = pickle.load(open('diabetes.pickle','rb'),encoding = 'latin1')
 
+
 # add intercept
+print("intercetpt done")
 X_i = np.concatenate((np.ones((X.shape[0],1)), X), axis=1)
 Xtest_i = np.concatenate((np.ones((Xtest.shape[0],1)), Xtest), axis=1)
 
@@ -284,6 +291,8 @@ mle_i = testOLERegression(w_i,Xtest_i,ytest)
 
 print('MSE without intercept '+str(mle))
 print('MSE with intercept '+str(mle_i))
+
+
 
 # Problem 3
 k = 101
